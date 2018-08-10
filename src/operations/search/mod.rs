@@ -590,6 +590,9 @@ struct SearchQueryOperationBody<'b> {
     /// Version
     #[serde(skip_serializing_if = "ShouldSkip::should_skip")]
     version: Option<bool>,
+
+    #[serde(skip_serializing_if = "ShouldSkip::should_skip")]
+    rescore: Option<Value>,
 }
 
 #[derive(Debug)]
@@ -653,6 +656,11 @@ impl<'a, 'b> SearchQueryOperation<'a, 'b> {
 
     pub fn with_version(&'b mut self, version: bool) -> &'b mut Self {
         self.body.version = Some(version);
+        self
+    }
+
+    pub fn with_rescore(&'b mut self, rescore: Value) -> &'b mut Self {
+        self.body.rescore = Some(rescore);
         self
     }
 
