@@ -108,7 +108,7 @@ fn do_req(resp: reqwest::Response) -> Result<reqwest::Response, EsError> {
 /// ```
 ///
 /// See the specific operations and their builder objects for details.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Client {
     base_url: Url,
     http_client: reqwest::Client,
@@ -186,6 +186,10 @@ impl Client {
                 .expect("Failed to build client"),
             base_url: url,
         })
+    }
+
+    pub fn set_timeout(&mut self, timeout: Option<time::Duration>) {
+        self.http_client.timeout(timeout);
     }
 
     /// Take a nearly complete ElasticSearch URL, and stick
