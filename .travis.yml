@@ -8,7 +8,6 @@ addons:
       - libcurl4-openssl-dev
       - libelf-dev
       - libdw-dev
-      - binutils-dev # optional: only required for the --verify flag of coveralls
 
 rust:
   - stable
@@ -16,29 +15,24 @@ rust:
   - nightly
 
 before_install:
+  - echo "Before install, check Java version..."
+  - sudo apt-get remove openjdk*
+  - sudo apt-get install openjdk-8-jre
+  - which java
+  - echo $JAVA_HOME
   - curl -O https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.0.2/elasticsearch-2.0.2.zip && unzip elasticsearch-2.0.2.zip
   - elasticsearch-2.0.2/bin/elasticsearch > /tmp/es.log &
 
 # As recommended here: http://docs.travis-ci.com/user/database-setup/#ElasticSearch
 before_script:
-  - |
-      pip install 'travis-cargo<0.2' --user &&
-      export PATH=$HOME/.local/bin:$PATH
   - sleep 10
 
 script:
    - |
-       travis-cargo build -- --all-features &&
-       travis-cargo test -- && travis-cargo test -- --all-features
-
-after_success:
-  # measure code coverage and upload to coveralls.io (the verify
-  # argument mitigates kcov crashes due to malformed debuginfo, at the
-  # cost of some speed <https://github.com/huonw/travis-cargo/issues/12>)
-  - travis-cargo --only nightly coveralls --no-sudo --verify
+       cargo build --all-features &&
+       cargo test && cargo test --all-features
 
 env:
   global:
-    # override the default `--features unstable` used for the nightly branch (optional)
-    - TRAVIS_CARGO_NIGHTLY_FEATURE=""
     - RUST_BACKTRACE=1
+    - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
